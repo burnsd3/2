@@ -20,39 +20,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle 8.4
+      - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v5
         with:
-          gradle-version: '8.4'
+          gradle-version: '8.7'
 
-      - name: Find Android project
-        run: |
-          SETTINGS=$(find . -name settings.gradle -o -name settings.gradle.kts | head -1)
-          if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Android Gradle project not found"
-            exit 1
-          fi
-          PROJECT_DIR=$(dirname "$SETTINGS")
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Found project at $PROJECT_DIR"
-
-      - name: Build APK
-        run: |
-          cd "$PROJECT_DIR"
-          gradle assembleDebug --no-daemon
-
-      - name: Find APK
-        run: |
-          APK=$(find . -name app-debug.apk | head -1)
-          if [ -z "$APK" ]; then
-            echo "ERROR: APK was not produced"
-            exit 1
-          fi
-          echo "APK=$APK" >> "$GITHUB_ENV"
+      - name: Build OverlayCam
+        run: gradle :app:assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: overlaycam-apk
-          path: ${{ env.APK }}
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
